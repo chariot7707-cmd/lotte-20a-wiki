@@ -1,0 +1,10 @@
+# 자동 커밋 훅이 `git add -A`를 쓰므로, 위키 문서가 아닌 것은 여기서 막는다
+# 각 AI 도구·플러그인의 상태 폴더 (예: oh-my-claudecode)
+.omc/
+.claude/settings.local.json
+# OS·편집기 찌꺼기
+.DS_Store
+Thumbs.db
+.obsidian/workspace*.json
+.obsidian/cache
+*.swp
