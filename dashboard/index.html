@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>20A 대시보드</title>
+<!-- 디자인 템플릿 — 내용은 data.js에서 읽는다. 디자인을 바꿀 때만 이 파일을 고친다. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --bg: #F3EFE7; --card: #FFFFFF; --ink: #17171C; --sub: #6B6A72; --line: #E4DFD4;
+    --accent: #D7FF3C; --warn: #FFE27A; --radius: 28px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1200px; background: var(--bg); color: var(--ink);
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    letter-spacing: -0.02em; padding: 48px; word-break: keep-all;
+  }
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+  .card { background: var(--card); border-radius: var(--radius); padding: 28px; position: relative; overflow: hidden; }
+  .label { font-size: 13px; font-weight: 600; color: var(--sub); text-transform: uppercase; letter-spacing: 0.06em; }
+  .s12 { grid-column: span 12; } .s7 { grid-column: span 7; } .s5 { grid-column: span 5; }
+  .s4 { grid-column: span 4; } .s3 { grid-column: span 3; }
+
+  /* 헤더 */
+  header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 26px; }
+  header h1 { font-size: 56px; font-weight: 800; line-height: 1; letter-spacing: -0.04em; }
+  header h1 span { color: var(--sub); font-weight: 500; }
+  header .meta { text-align: right; font-size: 16px; color: var(--sub); line-height: 1.5; }
+  header .meta b { color: var(--ink); font-size: 20px; }
+
+  /* 히어로 */
+  .hero { background: var(--ink); color: #fff; display: flex; flex-direction: column; justify-content: space-between; min-height: 300px; }
+  .hero .label { color: #9A99A3; }
+  .hero .dday { font-size: 132px; font-weight: 900; line-height: 0.9; letter-spacing: -0.06em; color: var(--accent); margin: 18px 0 8px; }
+  .hero .date { font-size: 18px; color: #C9C8D0; }
+  .hero ul { list-style: none; margin-top: 18px; }
+  .hero li { font-size: 20px; font-weight: 600; padding: 6px 0; border-top: 1px solid #2E2E36; display: flex; gap: 10px; align-items: center; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+
+  /* 학기 진행 */
+  .progress { display: flex; flex-direction: column; justify-content: space-between; }
+  .ring { width: 170px; height: 170px; margin: 14px auto 0; position: relative; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .num { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .ring .num b { font-size: 48px; font-weight: 800; display: block; line-height: 1; }
+  .ring .num small { font-size: 14px; color: var(--sub); }
+  .weeks { display: flex; gap: 4px; margin-top: 18px; }
+  .weeks i { flex: 1; height: 8px; border-radius: 4px; background: var(--line); }
+  .weeks i.on { background: var(--ink); }
+
+  /* 시간표 */
+  .tt-row { display: flex; align-items: center; gap: 14px; padding: 11px 0; border-top: 1px solid var(--line); }
+  .tt-row:first-of-type { border-top: 0; }
+  .tt-badge { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; font-size: 17px; flex: none; }
+  .tt-name { font-weight: 700; font-size: 17px; }
+  .tt-time { font-size: 13px; color: var(--sub); margin-top: 2px; }
+
+  /* 과목 카드 */
+  .subj { min-height: 230px; display: flex; flex-direction: column; }
+  .subj .big { position: absolute; right: 14px; top: -14px; font-size: 120px; font-weight: 900; opacity: 0.18; letter-spacing: -0.06em; }
+  .subj h3 { font-size: 23px; font-weight: 800; line-height: 1.2; margin-top: 10px; max-width: 85%; }
+  .subj .prof { font-size: 14px; color: rgba(0,0,0,.55); margin-top: 6px; }
+  .subj p { font-size: 14px; line-height: 1.45; margin-top: 14px; color: rgba(0,0,0,.7); }
+  .chip { margin-top: auto; align-self: flex-start; background: var(--ink); color: #fff; border-radius: 999px; padding: 8px 14px; font-size: 14px; font-weight: 600; }
+  .chip b { color: var(--accent); margin-left: 6px; }
+
+  /* 타임라인 */
+  .tl { position: relative; display: flex; justify-content: space-between; margin-top: 26px; }
+  .tl::before { content: ""; position: absolute; left: 0; right: 0; top: 9px; height: 2px; background: var(--line); }
+  .tl-node { position: relative; flex: 1; padding-right: 12px; }
+  .tl-node .pin { width: 20px; height: 20px; border-radius: 50%; background: var(--card); border: 4px solid var(--ink); }
+  .tl-node.soon .pin { background: var(--accent); }
+  .tl-node .d { font-size: 22px; font-weight: 800; margin-top: 14px; }
+  .tl-node .dd { font-size: 13px; color: var(--sub); font-weight: 600; }
+  .tl-node ul { list-style: none; margin-top: 10px; }
+  .tl-node li { font-size: 14px; padding: 3px 0; display: flex; gap: 7px; align-items: center; }
+
+  /* 할 일 / 확인 필요 */
+  .todo-row { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-top: 1px solid var(--line); font-size: 17px; font-weight: 600; }
+  .todo-row:first-of-type { border-top: 0; margin-top: 10px; }
+  .box { width: 22px; height: 22px; border: 2.5px solid var(--ink); border-radius: 7px; flex: none; }
+  .todo-row .due { margin-left: auto; font-size: 14px; color: var(--sub); font-weight: 600; white-space: nowrap; }
+  .todo-row .due b { color: var(--ink); background: var(--bg); border-radius: 8px; padding: 3px 8px; margin-left: 6px; }
+  .warn { background: var(--warn); }
+  .warn .label { color: rgba(0,0,0,.55); }
+  .warn .count { font-size: 64px; font-weight: 900; line-height: 1; margin-top: 10px; letter-spacing: -0.05em; }
+  .warn li { list-style: none; font-size: 16px; font-weight: 600; padding: 9px 0; border-top: 1px solid rgba(0,0,0,.12); }
+  .warn ul { margin-top: 14px; }
+
+  footer { margin-top: 22px; font-size: 13px; color: var(--sub); display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title"></h1>
+  <div class="meta" id="meta"></div>
+</header>
+<main class="grid" id="grid"></main>
+<footer><span>lotte-20a-wiki · "대시보드 갱신해줘"로 자동 생성</span><span id="stamp"></span></footer>
+
+<script src="data.js"></script>
+<script>
+  const D = window.DASH;
+  const day = s => new Date(s + "T00:00:00");
+  const diff = s => Math.round((day(s) - day(D.today)) / 86400000);
+  const dlabel = s => { const n = diff(s); return n === 0 ? "D-DAY" : n > 0 ? "D-" + n : "D+" + (-n); };
+  const md = s => { const d = day(s); return (d.getMonth() + 1) + "." + String(d.getDate()).padStart(2, "0"); };
+  const wd = s => "일월화수목금토"[day(s).getDay()];
+  const colorOf = p => (D.subjects.find(x => x.period === p) || {}).color || "#CFCBC2";
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  document.getElementById("title").innerHTML = `${esc(D.team)} <span>${esc(D.term)}</span>`;
+  document.getElementById("meta").innerHTML = `<b>${md(D.today)} (${wd(D.today)}) · ${D.week}주차</b><br>${esc(D.classInfo)}`;
+  document.getElementById("stamp").textContent = "기준일 " + D.today;
+
+  const upcoming = D.events.filter(e => diff(e.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
+  const byDate = {};
+  upcoming.forEach(e => (byDate[e.date] = byDate[e.date] || []).push(e));
+  const dates = Object.keys(byDate);
+  const first = dates[0];
+
+  let html = "";
+
+  // 히어로 — 가장 가까운 일정
+  html += `<section class="card hero s5"><div>
+      <div class="label">다음 마감</div>
+      <div class="dday">${first ? dlabel(first) : "—"}</div>
+      <div class="date">${first ? md(first) + " (" + wd(first) + ")" : "예정된 일정 없음"}</div></div>
+      <ul>${first ? byDate[first].map(e => `<li><span class="dot" style="background:${colorOf(e.period)}"></span>${esc(e.label)}</li>`).join("") : ""}</ul>
+    </section>`;
+
+  // 학기 진행
+  const pct = Math.min(1, D.week / D.totalWeeks), R = 74, C = 2 * Math.PI * R;
+  html += `<section class="card progress s3"><div class="label">학기 진행</div>
+      <div class="ring"><svg width="170" height="170"><circle cx="85" cy="85" r="${R}" fill="none" stroke="#ECE7DC" stroke-width="16"/>
+        <circle cx="85" cy="85" r="${R}" fill="none" stroke="#17171C" stroke-width="16" stroke-linecap="round" stroke-dasharray="${C * pct} ${C}"/></svg>
+        <div class="num"><div><b>${Math.round(pct * 100)}%</b><small>${D.week} / ${D.totalWeeks}주</small></div></div></div>
+      <div class="weeks">${Array.from({ length: D.totalWeeks }, (_, i) => `<i class="${i < D.week ? "on" : ""}"></i>`).join("")}</div>
+    </section>`;
+
+  // 월요일 시간표
+  html += `<section class="card s4"><div class="label" style="margin-bottom:8px">월요일 시간표</div>
+      ${D.subjects.map(s => `<div class="tt-row"><div class="tt-badge" style="background:${s.color}">${s.period}</div>
+        <div><div class="tt-name">${esc(s.name)}</div><div class="tt-time">${esc(s.time)} · ${esc(s.prof)} 교수님</div></div></div>`).join("")}
+    </section>`;
+
+  // 과목 카드
+  D.subjects.forEach(s => {
+    html += `<section class="card subj s3" style="background:${s.color}">
+        <div class="big">${s.period}</div>
+        <div class="label" style="color:rgba(0,0,0,.5)">${s.period}교시</div>
+        <h3>${esc(s.name)}</h3><div class="prof">${esc(s.prof)} 교수님</div>
+        <p>${esc(s.summary)}</p>
+        ${s.next ? `<div class="chip">${esc(s.next.label)} · ${md(s.next.date)}<b>${dlabel(s.next.date)}</b></div>` : ""}
+      </section>`;
+  });
+
+  // 타임라인
+  html += `<section class="card s12"><div class="label">다가오는 일정</div><div class="tl">
+      ${dates.map((d, i) => `<div class="tl-node ${i === 0 ? "soon" : ""}"><div class="pin"></div>
+        <div class="d">${md(d)}</div><div class="dd">${dlabel(d)} · ${wd(d)}</div>
+        <ul>${byDate[d].map(e => `<li><span class="dot" style="background:${colorOf(e.period)}"></span>${esc(e.label)}</li>`).join("")}</ul></div>`).join("")}
+    </div></section>`;
+
+  // 할 일
+  const todos = [...D.todos].sort((a, b) => a.due.localeCompare(b.due));
+  html += `<section class="card s7"><div class="label">할 일</div>
+      ${todos.map(t => `<div class="todo-row"><div class="box"></div>${esc(t.text)}<span class="due">${md(t.due)}<b>${dlabel(t.due)}</b></span></div>`).join("")}
+    </section>`;
+
+  // 확인 필요
+  html += `<section class="card warn s5"><div class="label">확인 필요</div>
+      <div class="count">${D.unknowns.length}건</div>
+      <ul>${D.unknowns.map(u => `<li>${esc(u)}</li>`).join("")}</ul>
+    </section>`;
+
+  document.getElementById("grid").innerHTML = html;
+</script>
+</body>
+</html>

@@ -29,6 +29,7 @@ knowhow/           # 1인 1주제 1파일 (예: 신규입사자-계정-신청-�
 raw/               # 공유 문서 원본 (기획서 사본·가이드 등, 불변)
 templates/         # project.md, meeting.md, member.md
 dashboard.md       # 팀 현황 대시보드 (자동 재생성 전용)
+dashboard/         # 대시보드 이미지: index.html(디자인) · data.js(데이터) · render.sh → dashboard.png
 ```
 
 ## 2. 충돌 회피 3규칙 (여러 명 동시 편집 전제)
@@ -66,8 +67,12 @@ git이 없는 컴퓨터에서는 훅이 아무것도 하지 않는다(혼자 쓰
 - 결과는 보고만 — 수정은 사용자 확인 후.
 
 ### 대시보드 갱신 (Claude 전용 지침)
-`projects/*.md`·`meetings/` 최근 5건을 읽어 `dashboard.md`를 **통째로 다시 쓴다**:
-프로젝트별 현황 한 줄 + 임박 일정(D-day) + 미해결 액션 아이템. 손편집 흔적을 보존하려 하지 말 것 (재생성이 정본).
+`projects/*.md`·`meetings/` 최근 5건을 읽어 다음 셋을 **통째로 다시 쓴다** (손편집 흔적 보존 X, 재생성이 정본):
+1. `dashboard/data.js` — 이미지용 데이터 (today·week·subjects·events·todos·unknowns). 기존 파일의 구조를 그대로 따르고 값만 바꾼다. 근거 없는 값은 넣지 않는다.
+2. `bash dashboard/render.sh` 실행 → `dashboard/dashboard.png` 생성. 생성된 PNG를 직접 열어 잘림·겹침이 없는지 확인한다 (내용이 늘면 `DASH_HEIGHT=1600 bash dashboard/render.sh`처럼 높이 조정).
+3. `dashboard.md` — 맨 위에 이미지, 그 아래 `<details>` 안에 텍스트 버전(프로젝트별 현황 한 줄 + 임박 일정 D-day + 미해결 액션 아이템, 링크 포함).
+
+디자인 변경("대시보드 디자인 바꿔줘")은 `dashboard/index.html`만 고친다 — 데이터와 디자인을 섞지 않는다.
 
 ## 4. 역할별 진입
 
